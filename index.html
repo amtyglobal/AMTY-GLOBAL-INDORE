@@ -1041,7 +1041,7 @@
         'RX Twister Massage Chair': ['RX Twister', 'Twister', 'TWISTER', 'twister'],
         'RX-7 Massage Chair': ['Rx7', 'Rx-7', 'Rx 7', 'RX-7', 'RX7', 'RX 7', 'rx-7', 'rx7'],
         'Moon Walker Massage Chair': ['Moon Walker', 'Moonwalker', 'MOON WALKER', 'moon walker'],
-        'Monster X Massage Chair': ['Monster X', 'MonsterX', 'MONSTER X', 'monster x'],
+        'Monster X Massage Chair': ['monster', 'Monster', 'Monster X', 'MonsterX', 'MONSTER X', 'monster x'],
         'Moon Cruiser Massage Chair': ['Moon Cruiser', 'Mooncruiser', 'MOON CRUISER', 'moon cruiser']
       };
 
@@ -1157,10 +1157,43 @@
           }
           // Compact fallback if API unavailable
           const fallbackList = [];
-          bases.slice(0, 3).forEach(b => ['.jpg', '.png', '.jpeg'].forEach(e => fallbackList.push(encodeURI(b + e))));
+          bases.slice(0, 4).forEach(b => ['.jpg', '.png', '.jpeg'].forEach(e => fallbackList.push(encodeURI(b + e))));
           applyImageCandidates(slot, fallbackList);
         });
       })();
+
+      function pushModalHistory(modalName) {
+        try {
+          const targetHash = '#view-' + modalName;
+          if (window.location.hash !== targetHash) {
+            history.pushState({ modal: modalName }, '', targetHash);
+          }
+        } catch (e) {}
+      }
+
+      function popModalHistory(modalName) {
+        try {
+          if (window.location.hash === '#view-' + modalName) {
+            history.back();
+          }
+        } catch (e) {}
+      }
+
+      function handleBackNavigation() {
+        const h = window.location.hash;
+        if (h !== '#view-video' && videoModal && !videoModal.classList.contains('hidden')) {
+          closeVideoModal(true);
+        }
+        if (h !== '#view-detail' && detailDrawer && !detailDrawer.classList.contains('translate-x-full')) {
+          closeDetailDrawer(true);
+        }
+        if (h !== '#view-compare' && drawer && !drawer.classList.contains('translate-x-full')) {
+          closeDrawer(true);
+        }
+      }
+
+      window.addEventListener('popstate', handleBackNavigation);
+      window.addEventListener('hashchange', handleBackNavigation);
 
       // --- Video Pop-Up Modal ---
       function extractVideoId(url) {
@@ -1553,14 +1586,9 @@
       });
 
       renderCompare();
-      // --- First-Visit VIP Pass Celebration & Fireworks Burst ---
+      // --- VIP Pass Celebration & Fireworks Burst (once per page open, never on in-page navigation) ---
       (function initFestiveCelebration() {
-        let alreadySeen = false;
-        try {
-          alreadySeen = localStorage.getItem('amty_festive_seen_v1') === '1';
-          if (!alreadySeen) localStorage.setItem('amty_festive_seen_v1', '1');
-        } catch (e) {}
-        if (alreadySeen) return;
+        if (window.location.hash && window.location.hash.startsWith('#view-')) return;
 
         const canvas = document.getElementById('fireworksCanvas');
         const banner = document.getElementById('festiveBanner');
