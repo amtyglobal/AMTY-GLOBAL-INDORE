@@ -1166,7 +1166,9 @@
         try {
           const targetHash = '#view-' + modalName;
           if (window.location.hash !== targetHash) {
-            history.pushState({ modal: modalName }, '', targetHash);
+            const y = window.scrollY;
+            window.location.hash = targetHash;
+            if (Math.abs(window.scrollY - y) > 5) window.scrollTo(0, y);
           }
         } catch (e) {}
       }
@@ -1192,8 +1194,8 @@
         }
       }
 
-      window.addEventListener('popstate', handleBackNavigation);
       window.addEventListener('hashchange', handleBackNavigation);
+      window.addEventListener('popstate', handleBackNavigation);
 
       // --- Video Pop-Up Modal ---
       function extractVideoId(url) {
