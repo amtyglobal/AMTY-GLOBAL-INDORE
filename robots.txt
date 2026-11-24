@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://amtyglobal.github.io/AMTY-GLOBAL-INDORE/sitemap.xml
